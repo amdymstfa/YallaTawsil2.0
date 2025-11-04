@@ -57,7 +57,7 @@ public class Tour {
     private Double totalDistance;
 
     @Column(length = 50)
-    private String optimizationAlgorithm; 
+    private String optimizationAlgorithm;
 
     @Column(nullable = true)
     private Integer estimatedDurationMinutes;
