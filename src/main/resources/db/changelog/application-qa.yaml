@@ -1,0 +1,28 @@
+spring:
+  profiles:
+    active: qa
+
+  datasource:
+    url: jdbc:postgresql://localhost:5432/yallatawsil_qa
+    driver-class-name: org.postgresql.Driver
+    username: yalla_user
+    password: ${DB_PASSWORD:secret}
+
+  jpa:
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+    hibernate:
+      ddl-auto: validate
+    show-sql: false
+    properties:
+      hibernate:
+        format_sql: false
+    open-in-view: false
+
+  liquibase:
+    enabled: true
+    change-log: classpath:db/changelog/db.changelog-master.yaml
+    drop-first: false
+
+tour:
+  optimizer:
+    algorithm: CLARKE_WRIGHT
