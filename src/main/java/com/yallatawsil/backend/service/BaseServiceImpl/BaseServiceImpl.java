@@ -2,8 +2,11 @@ package com.yallatawsil.backend.service.BaseServiceImpl;
 
 import com.yallatawsil.backend.exception.ResourceNotFoundException;
 import com.yallatawsil.backend.service.BaseService.BaseService;
+import org.springframework.transaction.annotation.Transactional;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
@@ -57,6 +60,15 @@ public abstract class BaseServiceImpl<Entity, RequestDTO, ResponseDTO, ID>
         return repository.findAll().stream()
                 .map(this::toResponseDTO)
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Page<ResponseDTO> findAll(Pageable pageable){
+        log.debug("Find all with pagination");
+
+        return repository.findAll(pageable)
+                .map(this::toResponseDTO);
     }
 
     @Override
