@@ -13,6 +13,7 @@ import com.yallatawsil.backend.service.optimizer.TourOptimizer;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Map;
@@ -21,6 +22,7 @@ import java.util.stream.Collectors;
 @Slf4j
 @Setter
 @Getter
+@Service
 public class TourServiceImpl implements TourService {
 
     private final TourRepository tourRepository;
