@@ -5,7 +5,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.ImportResource;
 
 @SpringBootApplication(scanBasePackages = {})
-@ImportResource("classpath:applicationContext.xml")
+
 public class YallatawsilBackendApplication {
     public static void main(String[] args) {
         SpringApplication.run(YallatawsilBackendApplication.class, args);

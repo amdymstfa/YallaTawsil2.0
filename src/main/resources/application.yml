@@ -1,0 +1,26 @@
+# Application Name
+spring:
+  application:
+    name: yallatawsil-backend
+
+# Port number
+server:
+  port:8080
+
+# Apis
+springdoc:
+  api-docs:
+    path: /api-docs
+  swagger-ui:
+    path: /swagger-ui.html
+    enabled: true
+    operations-sorter: method
+    tags-sorter: alpha
+
+# Logs
+logging:
+  level:
+    root: INFO
+    org.springframework.web: INFO
+    org.springframework.data: INFO
+    com.yallatawsil.backend: DEBUG

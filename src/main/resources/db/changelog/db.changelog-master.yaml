@@ -1,4 +1,5 @@
 databaseChangeLog:
+  # V1.0
   - include:
       file: db/changelog/changes/create-vehicles-table.yaml
   - include:
@@ -13,3 +14,11 @@ databaseChangeLog:
       file: db/changelog/changes/add-constraints-indexes.yaml
   - include:
       file: db/changelog/changes/insert-seed-data.yaml
+
+  # V2.0
+  - include:
+      file: db/changelog/changes/v2.0-create-customers-table.yaml
+  - include:
+      file: db/changelog/changes/v2.0-add-customer-to-deliveries.yaml
+  - include:
+      file: db/changelog/changes/v2.0-create-delivery-history-table.yaml
