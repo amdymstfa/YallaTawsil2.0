@@ -15,6 +15,9 @@ public class DeliveryRequestDTO {
     @NotBlank(message = "Delivery address is required")
     private String address;
 
+    @NotNull(message = "Customer ID is required")
+    private Long customerId;
+
     @NotNull(message = "Latitude is required")
     @Min(value = -90, message = "Latitude must be between -90 and 90")
     @Max(value = 90, message = "Latitude must be between -90 and 90")
