@@ -13,14 +13,20 @@
     public class DeliveryResponseDTO {
 
         private Long id;
+
+        private Long customerId;
+        private String customerName;
+
         private String address;
         private Double latitude;
         private Double longitude;
+        private String preferredTimeSlot;
+
         private Double weight;
         private Double volume;
-        private String preferredTimeSlot;
         private DeliveryStatus status;
         private String notes;
+
         private LocalDateTime createdAt;
         private LocalDateTime updatedAt;
     }
