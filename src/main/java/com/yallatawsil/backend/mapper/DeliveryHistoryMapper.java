@@ -1,15 +1,19 @@
-package com.yallatawsil.backend.mapper ;
+package com.yallatawsil.backend.mapper;
 
-import com.yallatawsil.backend.dto.request.CustomerRequestDTO;
 import com.yallatawsil.backend.dto.response.DeliveryHistoryResponseDTO;
-import org.mapstruct.Mapper;
 import com.yallatawsil.backend.entity.DeliveryHistory;
+import org.mapstruct.Mapper;
 
+/**
+ * DeliveryHistory Mapper
+ * Note: DeliveryHistory is created automatically by the system,
+ * so there is no RequestDTO or toEntity method
+ */
 @Mapper(componentModel = "spring")
 public interface DeliveryHistoryMapper {
 
-    // Convert DTO to Entity
+    /**
+     * Convert DeliveryHistory entity to DeliveryHistoryResponseDTO
+     */
     DeliveryHistoryResponseDTO toResponseDTO(DeliveryHistory deliveryHistory);
-    // Convert Entity to DTO
-    DeliveryHistory toEntity(CustomerRequestDTO dto);
 }
