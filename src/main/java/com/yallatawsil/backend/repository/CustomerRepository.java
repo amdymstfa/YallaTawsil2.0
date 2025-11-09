@@ -27,7 +27,7 @@ public interface CustomerRepository extends JpaRepository<Customer, Long> {
      * @param address of customer
      * @return list of address
      */
-    public List<Customer> findByAddressContainingCase(String address);
+    public List<Customer> findByAddressContainingIgnoreCase(String address);
 
     /**
      * Find a exact name
@@ -39,9 +39,9 @@ public interface CustomerRepository extends JpaRepository<Customer, Long> {
      */
     @Query("SELECT c FROM Customer c WHERE " +
             "SQRT(POWER(c.latitude - :lat, 2) + POWER(c.longitude - :lon, 2)) * 111.32 <= :radiusKm")
-    List<Customer> findCustomersWithRadius(
+    List<Customer> findCustomersWithinRadius(
             @Param("lat") Double latitude,
-            @Param("long") Double longitude,
+            @Param("lon") Double longitude,
             @Param("radiusKm") Double radiusKm
     );
 
@@ -60,4 +60,6 @@ public interface CustomerRepository extends JpaRepository<Customer, Long> {
             "FROM Customer c LEFT JOIN c.deliveries d " +
             "GROUP BY c.id, c.name")
     List<Objects[]> getCustomerStatistics();
+
+    boolean existsByName(String name);
 }
