@@ -58,7 +58,7 @@ public class DeliveryHistoryServiceImpl implements DeliveryHistoryService {
     @Override
     public List<DeliveryHistoryResponseDTO> findByCustomerId(Long customerId) {
         log.debug("Find customer with id: {}", customerId);
-        
+
         return deliveryHistoryRepository.findByCustomerId(customerId).stream()
                 .map(this::enrichResponseDTO)
                 .collect(Collectors.toList());
