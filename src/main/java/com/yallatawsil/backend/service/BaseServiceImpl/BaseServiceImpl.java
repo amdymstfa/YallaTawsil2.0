@@ -32,6 +32,8 @@ public abstract class BaseServiceImpl<Entity, RequestDTO, ResponseDTO, ID>
 
     protected abstract void updateEntityFromDTO(RequestDTO dto, Entity entity);
 
+    protected abstract ID getEntityId(Entity entity);
+
     @Override
     public ResponseDTO create(RequestDTO dto) {
         log.debug("Creating {}", entityName);
@@ -97,5 +99,5 @@ public abstract class BaseServiceImpl<Entity, RequestDTO, ResponseDTO, ID>
         log.info("{} deleted with id: {}", entityName, id);
     }
 
-    protected abstract ID getEntityId(Entity entity);
+
 }
