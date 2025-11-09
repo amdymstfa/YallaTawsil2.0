@@ -3,11 +3,13 @@ package com.yallatawsil.backend.controller;
 import com.yallatawsil.backend.dto.request.TourRequestDTO;
 import com.yallatawsil.backend.dto.response.OptimizationComparisonDTO;
 import com.yallatawsil.backend.dto.response.TourResponseDTO;
+import com.yallatawsil.backend.entity.enums.TourStatus;
 import com.yallatawsil.backend.service.InterfaceEntity.TourService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -19,6 +21,7 @@ import java.util.List;
 @CrossOrigin(origins = "http://localhost:4200")
 @Tag(name = "Tour", description = "Tour optimization and management APIs")
 @AllArgsConstructor
+@Slf4j
 public class TourController {
 
     private final TourService tourService;
@@ -58,5 +61,21 @@ public class TourController {
     @Operation(summary = "Compare Nearest Neighbor vs Clarke & Wright algorithms")
     public ResponseEntity<OptimizationComparisonDTO> compareAlgorithms(@Valid @RequestBody TourRequestDTO dto) {
         return ResponseEntity.ok(tourService.compareAlgorithms(dto));
+    }
+
+    /**
+     * Update tour status
+     * When status changes to COMPLETED, DeliveryHistory records are automatically created
+     */
+    @PatchMapping("/{id}/status")
+    @Operation(summary = "Update tour status",
+            description = "Automatically creates delivery history when status changes to COMPLETED")
+    public ResponseEntity<TourResponseDTO> updateStatus(
+            @PathVariable Long id,
+            @RequestParam TourStatus status
+    ) {
+        log.info("PATCH /api/v1/tours/{}/status?status={}", id, status);
+        TourResponseDTO updated = tourService.updateTourStatus(id, status);
+        return ResponseEntity.ok(updated);
     }
 }
