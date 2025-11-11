@@ -101,4 +101,14 @@ public interface DeliveryRepository extends JpaRepository<Delivery, Long> {
     @Query("SELECT d FROM Delivery d WHERE d.status = 'PENDING' AND " +
             "d.id NOT IN (SELECT td.delivery.id FROM TourDelivery td)")
     List<Delivery> findUnassignedPendingDeliveries();
+
+    List<Delivery> findByCustomerId(Long customerId);
+
+    List<Delivery> findByCustomerIdAndStatus(Long customerId, DeliveryStatus status);
+    
+    @Query("SELECT d FROM Delivery d WHERE d.weight <= :maxWeight AND d.volume <= :maxVolume")
+    List<Delivery> findByWeightAndVolume(
+            @Param("maxWeight") Double maxWeight,
+            @Param("maxVolume") Double maxVolume
+    );
 }
