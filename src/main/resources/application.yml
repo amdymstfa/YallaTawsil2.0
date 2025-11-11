@@ -28,7 +28,12 @@ logging:
 
 ai:
   deepseek:
-    api-key: "sk-a4f186bf4719447c8bdbc0c6397a0617"
+    api-key: ${DEEPSEEK_API_KEY}
     chat:
       options:
         model: deepseek-chat
+
+
+tour:
+  optimizer:
+    algorithm: NEAREST_NEIGHBOR
