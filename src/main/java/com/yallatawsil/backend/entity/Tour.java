@@ -8,7 +8,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -51,11 +50,14 @@ public class Tour {
     @OrderBy("sequenceOrder ASC")
     private final List<TourDelivery> tourDeliveries = new ArrayList<>();
 
+    @OneToMany(mappedBy = "tour")
+    private List<DeliveryHistory> deliveryHistories = new ArrayList<>();
+
     @Column(nullable = true)
-    private Double totalDistance;  // in km
+    private Double totalDistance;
 
     @Column(length = 50)
-    private String optimizationAlgorithm;  // e.g., "NEAREST_NEIGHBOR"
+    private String optimizationAlgorithm;
 
     @Column(nullable = true)
     private Integer estimatedDurationMinutes;

@@ -9,7 +9,8 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.time.LocalDateTime;
-import java.time.LocalTime;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Delivery Entity
@@ -27,21 +28,13 @@ public class Delivery {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @NotBlank(message = "Delivery address is required")
-    @Column(nullable = false, length = 500)
-    private String address;
+    @ManyToOne(optional = false, fetch = FetchType.LAZY)
+    @JoinColumn(name = "customer_id", nullable = false)
+    @NotNull(message = "Customer is required")
+    private Customer customer;
 
-    @NotNull(message = "Latitude is required")
-    @Min(value = -90, message = "Latitude must be between -90 and 90")
-    @Max(value = 90, message = "Latitude must be between -90 and 90")
-    @Column(nullable = false)
-    private Double latitude;
-
-    @NotNull(message = "Longitude is required")
-    @Min(value = -180, message = "Longitude must be between -180 and 180")
-    @Max(value = 180, message = "Longitude must be between -180 and 180")
-    @Column(nullable = false)
-    private Double longitude;
+    @OneToMany(mappedBy = "delivery")
+    private List<DeliveryHistory> histories = new ArrayList<>();
 
     @NotNull(message = "Weight is required")
     @DecimalMin(value = "0.1", message = "Weight must be greater than 0")
@@ -52,14 +45,6 @@ public class Delivery {
     @DecimalMin(value = "0.01", message = "Volume must be greater than 0")
     @Column(nullable = false)
     private Double volume;
-
-    // REMOVE @NotNull - will be set in @PrePersist
-    @Column
-    private LocalTime preferredStartTime;
-
-    // REMOVE @NotNull - will be set in @PrePersist
-    @Column
-    private LocalTime preferredEndTime;
 
     @Enumerated(EnumType.STRING)
     @NotNull(message = "Status is required")
@@ -87,15 +72,6 @@ public class Delivery {
             this.status = DeliveryStatus.PENDING;
         }
 
-        // Set default time window if not provided (full business day)
-        if (this.preferredStartTime == null) {
-            this.preferredStartTime = LocalTime.of(8, 0);
-        }
-        if (this.preferredEndTime == null) {
-            this.preferredEndTime = LocalTime.of(18, 0);
-        }
-
-        // Validate on creation
         validateConstraints();
     }
 
@@ -105,16 +81,6 @@ public class Delivery {
     @PreUpdate
     protected void onUpdate() {
         this.updatedAt = LocalDateTime.now();
-
-        // Validate on update
-        validateConstraints();
-    }
-
-    /**
-     * Validate on load
-     */
-    @PostLoad
-    private void onLoad() {
         validateConstraints();
     }
 
@@ -133,7 +99,7 @@ public class Delivery {
     }
 
     /**
-     * Validate weight, volume and preferred time slot
+     * Validate weight and volume
      */
     private void validateConstraints() {
         if (this.weight != null && this.weight <= 0) {
@@ -142,43 +108,33 @@ public class Delivery {
         if (this.volume != null && this.volume <= 0) {
             throw new IllegalStateException("Volume must be greater than 0");
         }
-
-        if (preferredStartTime != null && preferredEndTime != null) {
-            if (!preferredStartTime.isBefore(preferredEndTime)) {
-                throw new IllegalStateException("Preferred start time must be before preferred end time");
-            }
-        }
     }
 
     /**
-     * Set preferred time slot based on enum value
-     * @param timeSlot MORNING, AFTERNOON, or EVENING
+     * Get delivery address from associated customer
      */
-    public void setPreferredTimeSlot(String timeSlot) {
-        if (timeSlot == null) {
-            // Default to full business day
-            this.preferredStartTime = LocalTime.of(8, 0);
-            this.preferredEndTime = LocalTime.of(18, 0);
-            return;
-        }
+    public String getAddress() {
+        return customer != null ? customer.getAddress() : null;
+    }
 
-        switch (timeSlot.toUpperCase()) {
-            case "MORNING":
-                this.preferredStartTime = LocalTime.of(8, 0);
-                this.preferredEndTime = LocalTime.of(12, 0);
-                break;
-            case "AFTERNOON":
-                this.preferredStartTime = LocalTime.of(12, 0);
-                this.preferredEndTime = LocalTime.of(17, 0);
-                break;
-            case "EVENING":
-                this.preferredStartTime = LocalTime.of(17, 0);
-                this.preferredEndTime = LocalTime.of(21, 0);
-                break;
-            default:
-                // Full business day for unknown values
-                this.preferredStartTime = LocalTime.of(8, 0);
-                this.preferredEndTime = LocalTime.of(18, 0);
-        }
+    /**
+     * Get delivery latitude from associated customer
+     */
+    public Double getLatitude() {
+        return customer != null ? customer.getLatitude() : null;
+    }
+
+    /**
+     * Get delivery longitude from associated customer
+     */
+    public Double getLongitude() {
+        return customer != null ? customer.getLongitude() : null;
+    }
+
+    /**
+     * Get preferred time slot from associated customer
+     */
+    public String getPreferredTimeSlot() {
+        return customer != null ? customer.getPreferredTimeSlot() : null;
     }
 }
