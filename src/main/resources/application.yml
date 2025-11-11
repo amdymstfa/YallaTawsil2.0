@@ -24,3 +24,11 @@ logging:
     org.springframework.web: INFO
     org.springframework.data: INFO
     com.yallatawsil.backend: DEBUG
+
+
+ai:
+  deepseek:
+    api-key: "sk-a4f186bf4719447c8bdbc0c6397a0617"
+    chat:
+      options:
+        model: deepseek-chat
