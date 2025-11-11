@@ -10,21 +10,41 @@
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
         <version>3.5.7</version>
-        <relativePath/> <!-- lookup parent from repository -->
+        <relativePath/>
     </parent>
 
     <groupId>com.yallatawsil</groupId>
     <artifactId>yallatawsil-backend</artifactId>
     <version>0.0.1-SNAPSHOT</version>
     <name>yallatawsil-backend</name>
-    <description>Demo project for Spring Boot</description>
+    <description>YallaTawsil Backend - Spring Boot</description>
 
     <properties>
         <java.version>21</java.version>
         <org.mapstruct.version>1.6.3</org.mapstruct.version>
         <lombok.version>1.18.30</lombok.version>
+        <spring-ai.version>1.0.0-SNAPSHOT</spring-ai.version>
     </properties>
 
+    <!-- ========================================= -->
+    <!-- Dependency Management -->
+    <!-- ========================================= -->
+    <dependencyManagement>
+        <dependencies>
+            <!-- Spring AI BOM -->
+            <dependency>
+                <groupId>org.springframework.ai</groupId>
+                <artifactId>spring-ai-bom</artifactId>
+                <version>${spring-ai.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+
+    <!-- ========================================= -->
+    <!-- Dependencies -->
+    <!-- ========================================= -->
     <dependencies>
         <!-- Spring Boot Starters -->
         <dependency>
@@ -48,10 +68,16 @@
             <artifactId>liquibase-core</artifactId>
         </dependency>
 
-        <!-- Database -->
+        <!-- Database (H2 for testing, PostgreSQL for production) -->
         <dependency>
             <groupId>com.h2database</groupId>
             <artifactId>h2</artifactId>
+            <scope>runtime</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.postgresql</groupId>
+            <artifactId>postgresql</artifactId>
             <scope>runtime</scope>
         </dependency>
 
@@ -70,22 +96,41 @@
             <version>${org.mapstruct.version}</version>
         </dependency>
 
-        <!-- Testing -->
+        <!-- Spring AI (OpenAI) -->
         <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-test</artifactId>
-            <scope>test</scope>
+            <groupId>org.springframework.ai</groupId>
+            <artifactId>spring-ai-openai-spring-boot-starter</artifactId>
         </dependency>
 
-        <!-- Swagger/OpenAPI -->
+        <!-- Jackson JSON -->
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-databind</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.fasterxml.jackson.datatype</groupId>
+            <artifactId>jackson-datatype-jsr310</artifactId>
+        </dependency>
+
+        <!-- Swagger / OpenAPI -->
         <dependency>
             <groupId>org.springdoc</groupId>
             <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
             <version>2.5.0</version>
         </dependency>
 
+        <!-- Testing -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-test</artifactId>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 
+    <!-- ========================================= -->
+    <!-- Build Configuration -->
+    <!-- ========================================= -->
     <build>
         <plugins>
             <plugin>
@@ -101,19 +146,19 @@
                     <source>21</source>
                     <target>21</target>
                     <annotationProcessorPaths>
-                        <!-- CRITICAL: LOMBOK MUST COME FIRST -->
+                        <!-- Lombok MUST come first -->
                         <path>
                             <groupId>org.projectlombok</groupId>
                             <artifactId>lombok</artifactId>
                             <version>${lombok.version}</version>
                         </path>
-                        <!-- THEN MAPSTRUCT PROCESSOR -->
+                        <!-- MapStruct processor -->
                         <path>
                             <groupId>org.mapstruct</groupId>
                             <artifactId>mapstruct-processor</artifactId>
                             <version>${org.mapstruct.version}</version>
                         </path>
-                        <!-- BINDING TO MAKE LOMBOK AND MAPSTRUCT WORK TOGETHER -->
+                        <!-- Binding Lombok + MapStruct -->
                         <path>
                             <groupId>org.projectlombok</groupId>
                             <artifactId>lombok-mapstruct-binding</artifactId>
@@ -124,5 +169,31 @@
             </plugin>
         </plugins>
     </build>
+
+    <!-- ========================================= -->
+    <!-- Repositories -->
+    <!-- ========================================= -->
+    <repositories>
+        <repository>
+            <id>spring-snapshots</id>
+            <name>Spring Snapshots</name>
+            <url>https://repo.spring.io/snapshot</url>
+            <releases>
+                <enabled>false</enabled>
+            </releases>
+        </repository>
+
+        <repository>
+            <name>Central Portal Snapshots</name>
+            <id>central-portal-snapshots</id>
+            <url>https://central.sonatype.com/repository/maven-snapshots/</url>
+            <releases>
+                <enabled>false</enabled>
+            </releases>
+            <snapshots>
+                <enabled>true</enabled>
+            </snapshots>
+        </repository>
+    </repositories>
 
 </project>
