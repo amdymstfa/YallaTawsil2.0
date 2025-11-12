@@ -34,10 +34,10 @@ public class Customer {
     private String preferredTimeSlot ;
 
     // Relation between customer and delivery
-    @OneToMany(mappedBy = "costumer", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "customer", cascade = CascadeType.ALL)
     private List<Delivery> deliveries = new ArrayList<>();
 
-    @OneToMany(mappedBy = "costumer")
+    @OneToMany(mappedBy = "customer")
     private List<DeliveryHistory> deliveryHistories = new ArrayList<>();
 
     @Column(updatable = false)
