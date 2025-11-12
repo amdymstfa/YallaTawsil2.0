@@ -2,8 +2,11 @@ package com.yallatawsil.backend.service.BaseServiceImpl;
 
 import com.yallatawsil.backend.exception.ResourceNotFoundException;
 import com.yallatawsil.backend.service.BaseService.BaseService;
+import org.springframework.transaction.annotation.Transactional;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
@@ -28,6 +31,8 @@ public abstract class BaseServiceImpl<Entity, RequestDTO, ResponseDTO, ID>
     protected abstract ResponseDTO toResponseDTO(Entity entity);
 
     protected abstract void updateEntityFromDTO(RequestDTO dto, Entity entity);
+
+    protected abstract ID getEntityId(Entity entity);
 
     @Override
     public ResponseDTO create(RequestDTO dto) {
@@ -60,6 +65,15 @@ public abstract class BaseServiceImpl<Entity, RequestDTO, ResponseDTO, ID>
     }
 
     @Override
+    @Transactional(readOnly = true)
+    public Page<ResponseDTO> findAll(Pageable pageable){
+        log.debug("Find all with pagination");
+
+        return repository.findAll(pageable)
+                .map(this::toResponseDTO);
+    }
+
+    @Override
     public ResponseDTO update(ID id, RequestDTO dto) {
         log.debug("Updating {} with id: {}", entityName, id);
 
@@ -85,5 +99,5 @@ public abstract class BaseServiceImpl<Entity, RequestDTO, ResponseDTO, ID>
         log.info("{} deleted with id: {}", entityName, id);
     }
 
-    protected abstract ID getEntityId(Entity entity);
+
 }
