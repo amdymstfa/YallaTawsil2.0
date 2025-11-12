@@ -9,11 +9,13 @@ import com.yallatawsil.backend.service.BaseServiceImpl.BaseServiceImpl;
 import com.yallatawsil.backend.service.InterfaceEntity.VehicleService;
 import jakarta.persistence.Entity;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.util.List;
 
 @Slf4j
+@Service
 public class VehicleServiceImpl extends BaseServiceImpl<Vehicle, VehicleRequestDTO, VehicleResponseDTO, Long>
         implements VehicleService {
 
