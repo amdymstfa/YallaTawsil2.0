@@ -32,6 +32,10 @@ ai:
     chat:
       options:
         model: deepseek-chat
+  optimizer:
+    enabled: true
+    history-days: 90
+    min-history-records: 10
 
 
 tour:
