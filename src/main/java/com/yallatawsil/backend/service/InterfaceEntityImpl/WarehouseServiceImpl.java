@@ -8,9 +8,11 @@ import com.yallatawsil.backend.repository.WarehouseRepository;
 import com.yallatawsil.backend.service.BaseServiceImpl.BaseServiceImpl;
 import com.yallatawsil.backend.service.InterfaceEntity.WarehouseService;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Service;
 
 import java.time.LocalTime;
 
+@Service
 @Slf4j
 public class WarehouseServiceImpl extends BaseServiceImpl<Warehouse, WarehouseRequestDTO, WarehouseResponseDTO, Long>
         implements WarehouseService {
