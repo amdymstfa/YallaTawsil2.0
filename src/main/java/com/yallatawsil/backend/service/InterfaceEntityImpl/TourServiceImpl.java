@@ -4,25 +4,26 @@ import com.yallatawsil.backend.dto.request.TourRequestDTO;
 import com.yallatawsil.backend.dto.response.OptimizationComparisonDTO;
 import com.yallatawsil.backend.dto.response.TourResponseDTO;
 import com.yallatawsil.backend.entity.*;
+import com.yallatawsil.backend.entity.enums.TourStatus;
 import com.yallatawsil.backend.exception.ResourceNotFoundException;
 import com.yallatawsil.backend.mapper.TourMapper;
 import com.yallatawsil.backend.repository.*;
 import com.yallatawsil.backend.service.InterfaceEntity.TourService;
 import com.yallatawsil.backend.service.distance.DistanceCalculator;
 import com.yallatawsil.backend.service.optimizer.TourOptimizer;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalTime;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
 @Slf4j
-@Setter
-@Getter
 @Service
+@RequiredArgsConstructor
 public class TourServiceImpl implements TourService {
 
     private final TourRepository tourRepository;
@@ -32,24 +33,10 @@ public class TourServiceImpl implements TourService {
     private final TourMapper tourMapper;
     private final DistanceCalculator distanceCalculator;
     private final Map<String, TourOptimizer> optimizers;
-
-    public TourServiceImpl(TourRepository tourRepository,
-                           VehicleRepository vehicleRepository,
-                           WarehouseRepository warehouseRepository,
-                           DeliveryRepository deliveryRepository,
-                           TourMapper tourMapper,
-                           DistanceCalculator distanceCalculator,
-                           Map<String, TourOptimizer> optimizers) {
-        this.tourRepository = tourRepository;
-        this.vehicleRepository = vehicleRepository;
-        this.warehouseRepository = warehouseRepository;
-        this.deliveryRepository = deliveryRepository;
-        this.tourMapper = tourMapper;
-        this.distanceCalculator = distanceCalculator;
-        this.optimizers = optimizers;
-    }
+    private final DeliveryHistoryRepository deliveryHistoryRepository;
 
     @Override
+    @Transactional
     public TourResponseDTO optimizeTour(TourRequestDTO dto) {
         log.debug("Optimizing tour with algorithm: {}", dto.getOptimizationAlgorithm());
 
@@ -111,6 +98,7 @@ public class TourServiceImpl implements TourService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public TourResponseDTO findById(Long id) {
         log.debug("Finding tour by id: {}", id);
 
@@ -121,6 +109,7 @@ public class TourServiceImpl implements TourService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<TourResponseDTO> findAll() {
         log.debug("Finding all tours");
 
@@ -130,6 +119,7 @@ public class TourServiceImpl implements TourService {
     }
 
     @Override
+    @Transactional
     public void delete(Long id) {
         log.debug("Deleting tour with id: {}", id);
 
@@ -142,6 +132,7 @@ public class TourServiceImpl implements TourService {
     }
 
     @Override
+    @Transactional
     public OptimizationComparisonDTO compareAlgorithms(TourRequestDTO dto) {
         log.debug("Comparing optimization algorithms");
 
@@ -181,10 +172,71 @@ public class TourServiceImpl implements TourService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public Double getTotalDistance(Long id) {
         Tour tour = tourRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Tour not found with id: " + id));
 
         return tour.getTotalDistance();
+    }
+
+    /**
+     * Update tour status
+     * Automatically create DeliveryHistory when status changes to COMPLETED
+     */
+    @Transactional
+    @Override
+    public TourResponseDTO updateTourStatus(Long tourId, TourStatus newStatus) {
+        log.debug("Updating tour {} to status {}", tourId, newStatus);
+
+        Tour tour = tourRepository.findById(tourId)
+                .orElseThrow(() -> new ResourceNotFoundException("Tour not found with id: " + tourId));
+
+        // Validation de transition
+        if (!tour.getStatus().canTransitionTo(newStatus)) {
+            throw new IllegalStateException(
+                    String.format("Cannot transition from %s to %s", tour.getStatus(), newStatus)
+            );
+        }
+
+        // Création d'historique si le tour est complété
+        if (newStatus == TourStatus.COMPLETED && tour.getStatus() != TourStatus.COMPLETED) {
+            createDeliveryHistories(tour);
+        }
+
+        tour.updateStatus(newStatus);
+        Tour updated = tourRepository.save(tour);
+
+        log.info("Tour {} updated to {}", tourId, newStatus);
+        return tourMapper.toResponseDTO(updated);
+    }
+
+    /**
+     * Create delivery histories when tour is completed
+     * Uses Lombok Builder for concise object creation
+     */
+    private void createDeliveryHistories(Tour tour) {
+        LocalTime now = LocalTime.now();
+
+        List<DeliveryHistory> histories = tour.getTourDeliveries().stream()
+                .map(td -> DeliveryHistory.builder()
+                        .tour(tour)
+                        .delivery(td.getDelivery())
+                        .customer(td.getDelivery().getCustomer())
+                        .customerName(td.getDelivery().getCustomer().getName())
+                        .address(td.getDelivery().getCustomer().getAddress())
+                        .latitude(td.getDelivery().getCustomer().getLatitude())
+                        .longitude(td.getDelivery().getCustomer().getLongitude())
+                        .deliveryDate(tour.getDate())
+                        .plannedTime(td.getEstimatedArrival() != null ?
+                                td.getEstimatedArrival().toLocalTime() : now)
+                        .actualTime(now)
+                        .build())
+                .toList();
+
+
+        deliveryHistoryRepository.saveAll(histories);
+
+        log.info("Created {} delivery histories for tour {}", histories.size(), tour.getId());
     }
 }
