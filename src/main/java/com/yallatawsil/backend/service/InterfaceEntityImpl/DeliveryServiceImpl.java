@@ -2,16 +2,19 @@ package com.yallatawsil.backend.service.InterfaceEntityImpl ;
 
 import com.yallatawsil.backend.dto.request.DeliveryRequestDTO;
 import com.yallatawsil.backend.dto.response.DeliveryResponseDTO;
+import com.yallatawsil.backend.entity.Customer;
 import com.yallatawsil.backend.entity.Delivery;
 import com.yallatawsil.backend.entity.enums.DeliveryStatus;
 import com.yallatawsil.backend.exception.ResourceNotFoundException;
 import com.yallatawsil.backend.mapper.DeliveryMapper;
+import com.yallatawsil.backend.repository.CustomerRepository;
 import com.yallatawsil.backend.repository.DeliveryRepository;
 import com.yallatawsil.backend.service.BaseServiceImpl.BaseServiceImpl;
 import com.yallatawsil.backend.service.InterfaceEntity.DeliveryService;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -19,16 +22,19 @@ import java.util.stream.Collectors;
 @Slf4j
 @Setter
 @Getter
+@Service
 public class DeliveryServiceImpl extends BaseServiceImpl<Delivery, DeliveryRequestDTO, DeliveryResponseDTO, Long>
 implements DeliveryService
 {
     private final DeliveryRepository deliveryRepository;
     private final DeliveryMapper deliveryMapper ;
+    private final CustomerRepository customerRepository;
 
-    public DeliveryServiceImpl(DeliveryRepository deliveryRepository, DeliveryMapper deliveryMapper){
+    public DeliveryServiceImpl(DeliveryRepository deliveryRepository, DeliveryMapper deliveryMapper, CustomerRepository customerRepository){
         super(deliveryRepository, "Delivery");
         this.deliveryRepository = deliveryRepository ;
         this.deliveryMapper = deliveryMapper ;
+        this.customerRepository = customerRepository;
     }
 
 
@@ -44,15 +50,19 @@ implements DeliveryService
     }
 
     @Override
-    protected void updateEntityFromDTO(DeliveryRequestDTO deliveryRequestDTO, Delivery delivery) {
+    protected void updateEntityFromDTO(DeliveryRequestDTO dto, Delivery delivery) {
+        // Update Customer if changed
+        if (!delivery.getCustomer().getId().equals(dto.getCustomerId())) {
+            Customer newCustomer = customerRepository.findById(dto.getCustomerId())
+                    .orElseThrow(() -> new ResourceNotFoundException(
+                            "Customer not found with id: " + dto.getCustomerId()
+                    ));
+            delivery.setCustomer(newCustomer);
+        }
 
-        delivery.setLongitude(deliveryRequestDTO.getLongitude());
-        delivery.setLatitude(deliveryRequestDTO.getLatitude());
-        delivery.setAddress(deliveryRequestDTO.getAddress());
-        delivery.setWeight(deliveryRequestDTO.getWeight());
-        delivery.setVolume(deliveryRequestDTO.getVolume());
-        delivery.setPreferredTimeSlot(deliveryRequestDTO.getPreferredTimeSlot());
-        delivery.setNotes(deliveryRequestDTO.getNotes());
+        delivery.setWeight(dto.getWeight());
+        delivery.setVolume(dto.getVolume());
+        delivery.setNotes(dto.getNotes());
     }
 
     @Override
